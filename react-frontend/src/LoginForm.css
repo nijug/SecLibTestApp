@@ -1,0 +1,7 @@
+.loginFormContainer {
+    background-color: #ffffff; /* white background */
+    color: #333333; /* dark text */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* optional: add a little shadow for a "floating" effect */
+}

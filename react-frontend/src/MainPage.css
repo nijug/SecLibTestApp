@@ -1,0 +1,105 @@
+:root {
+    --primary-color: #007BFF;
+    --secondary-color: #6c757d;
+    --background-color: #f9f9f9;
+    --border-color: #ddd;
+}
+
+.mainPageWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-buttons {
+    display: flex;
+    gap: 10px;
+    margin-right: 30px;
+
+}
+
+.navbar h1 {
+    margin: 0;
+}
+
+
+.mainPageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items within the container */
+    color: var(--secondary-color);
+    padding: 20px;
+    width: 100%;
+    max-width: 840px; /* Adjust this value as needed */
+    margin-top: 60px;
+    box-sizing: border-box;
+
+}
+
+.post {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    margin-bottom: 30px; /* Ensure spacing between posts */
+    background-color: var(--background-color);
+    border-radius: 5px;
+    width: 100%; /* Take the full width of the parent container */
+    max-width: 840px; /* Ensures it doesn't exceed the parent container's max-width */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    white-space: normal;
+    overflow-wrap: break-word; /* Ensures words break properly */
+    word-break: break-word; /* For older browsers */
+    box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+    margin: 30px auto; /* Centers the post element and adds vertical spacing */
+}
+
+.post:first-child {
+    margin-top: 60px;
+}
+
+.post:hover {
+    transform: scale(1.02);
+}
+
+.postAuthor {
+    font-size: 0.8em;
+    color: var(--secondary-color);
+    margin-bottom: 5px;
+    align-self: flex-start;
+}
+
+.postTitle {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    align-self: flex-start;
+}
+
+.postContent {
+    font-size: 1em;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    align-self: flex-start;
+}
+
+.logoutButton {
+    position: fixed;
+    right: 30px;
+}
+
