@@ -160,6 +160,8 @@ const MainPage: React.FC<MainPageProps> = ({ username, onLogout }) => {
                         id="content"
                         label="Content"
                         fullWidth
+                        multiline
+                        rows={4}
                         value={content}
                         onChange={e => setContent(e.target.value)}
                     />
