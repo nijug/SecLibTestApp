@@ -1,29 +1,36 @@
 package com.example.seclibtestapp.post.service;
 
-import com.example.seclibtestapp.post.repository.PostRepository;
-import com.seclib.user.service.DefaultUserService;
-import com.seclib.userRoles.service.DefaultRoleService;
-import org.springframework.stereotype.Service;
 import com.example.seclibtestapp.post.model.Post;
+import com.example.seclibtestapp.post.repository.PostRepository;
+import com.seclib.userRoles.service.DefaultRoleService;
+import com.seclib.validator.TextSanitizer;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 public class PostService {
+
     private final PostRepository postRepository;
     private final DefaultRoleService roleService;
+    private final TextSanitizer textSanitizer;
+    private final MarkdownService markdownService;
 
-    public PostService(PostRepository postRepository, DefaultRoleService roleService) {
+    public PostService(PostRepository postRepository, DefaultRoleService roleService, TextSanitizer textSanitizer, MarkdownService markdownService) {
         this.postRepository = postRepository;
         this.roleService = roleService;
+        this.textSanitizer = textSanitizer;
+        this.markdownService = markdownService;
     }
 
     public Post createPost(String title, String content, String author) {
-        Post post = new Post();
-        post.setTitle(title);
-        post.setContent(content);
-        post.setAuthor(author);
-        return postRepository.save(post);
+        Post newPost = new Post();
+        newPost.setTitle(textSanitizer.sanitize(title));
+        String sanitizedContent = textSanitizer.sanitize(content);
+        newPost.setContent(markdownService.renderToHtml(sanitizedContent));
+        System.out.println(markdownService.renderToHtml(sanitizedContent));
+        newPost.setAuthor(author);
+        return postRepository.save(newPost);
     }
 
     public Iterable<Post> getAllPosts() {
@@ -35,22 +42,24 @@ public class PostService {
     }
 
     public Post updatePost(Long id, String title, String content, String author) {
-        Post post = getPostById(id).orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        System.out.println(post.getAuthor());
+        Post postToUpdate = getPostById(id).orElseThrow(() -> new IllegalArgumentException("Post not found"));
+        System.out.println(postToUpdate.getAuthor());
         System.out.println(author);
-        if (!post.getAuthor().equals(author) && !roleService.userHasRole(author, "admin")) {
+        if (!postToUpdate.getAuthor().equals(author) && !roleService.userHasRole(author, "admin")) {
             throw new IllegalArgumentException("User not authorized to update this post");
         }
-        post.setTitle(title);
-        post.setContent(content);
-        return postRepository.save(post);
+        postToUpdate.setTitle(textSanitizer.sanitize(title));
+        String sanitizedContent = textSanitizer.sanitize(content);
+        postToUpdate.setContent(markdownService.renderToHtml(sanitizedContent));
+        System.out.println(markdownService.renderToHtml(sanitizedContent));
+        return postRepository.save(postToUpdate);
     }
 
     public void deletePost(Long id, String author) {
-        Post post = getPostById(id).orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        if (!post.getAuthor().equals(author) && !roleService.userHasRole(author, "admin")) {
+        Post postToDelete = getPostById(id).orElseThrow(() -> new IllegalArgumentException("Post not found"));
+        if (!postToDelete.getAuthor().equals(author) && !roleService.userHasRole(author, "admin")) {
             throw new IllegalArgumentException("User not authorized to delete this post");
         }
-        postRepository.delete(post);
+        postRepository.delete(postToDelete);
     }
 }

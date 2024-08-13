@@ -1,0 +1,24 @@
+[Click me](javascript:alert('XSS Attack'))
+
+![Dangerous Image](javascript:alert('XSS Attack')) "onerror="alert('XSS Attack')
+
+[Click me](http://example.com" onclick="alert('XSS Attack'))
+
+<a href="http://example.com">Normal Link</a>
+<script>alert('XSS Attack');</script>
+
+[comment]: <> (<script>alert('XSS Attack');</script>)
+
+&#x3C;script&#x3E;alert('XSS Attack')&#x3C;/script&#x3E;
+
+![Dangerous Image](data:image/svg+xml;base64,PHN2ZyBvbmxvYWQ9ImFsZXJ0KCdYU1MgQXR0YWNrJykiLz4=)
+
+![Dangerous Image](data:image/svg+xml;utf8,<svg><script>alert("XSS Attack")</script></svg>)
+
+
+[Click me][1]
+
+[1]: http://example.com" style="position:absolute;width:100%;height:100%;top:0;left:0;" onclick="alert('XSS Attack');"
+
+![External Content](http://example.com/image.png" onerror="alert('XSS Attack'))
+

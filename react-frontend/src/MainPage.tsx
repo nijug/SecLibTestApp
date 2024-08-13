@@ -3,6 +3,8 @@ import axiosInstance from './axiosInstance';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
 import './MainPage.css';
+import ReactMarkdown from 'react-markdown';
+
 
 interface MainPageProps {
     username: string | null;
@@ -131,7 +133,9 @@ const MainPage: React.FC<MainPageProps> = ({ username, onLogout }) => {
                         <div key={post.id} className="post">
                             <p className="postAuthor">{post.author}</p>
                             <h2 className="postTitle">{post.title}</h2>
-                            <p className="postContent">{post.content}</p>
+                             <div className="postContent"
+                             dangerouslySetInnerHTML={{ __html: post.content }}
+                             />
                             {post.author === username && (
                                 <div className="postButtons">
                                     <Button className="editButton" variant="outlined" color="primary" onClick={() => handleEditClick(post.id)}>Edit</Button>

@@ -4,6 +4,7 @@ import { Button, Container, Typography } from '@material-ui/core';
 import './QrCodePopup.css';
 import { useNavigate } from 'react-router-dom';
 
+
 interface QrCodePopupProps {
     qrCode: string;
     totpSecret: string;
