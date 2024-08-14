@@ -44,6 +44,7 @@ const App: React.FC = () => {
             localStorage.removeItem('username');
             localStorage.removeItem('session');
             delete axiosInstance.defaults.headers.common['Authorization'];
+            window.location.reload();
         }
     };
 
@@ -65,6 +66,24 @@ const App: React.FC = () => {
         navigate('/forgot-password');
     };
 
+
+    const handleDebugRegisterLoginAdmin = async () => {
+            try {
+                const response = await axiosInstance.post('/users/debug/register-login-admin');
+                console.log(response.data.message);
+                localStorage.setItem('session', response.data.session);
+                axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.session}`;
+                setLoggedInUser('admin-debug');
+                navigate('/main');
+                window.location.reload();
+            } catch (error) {
+                console.error('Failed to register-login admin:', error);
+                alert('Failed to register-login admin. Please try again.');
+            }
+        };
+
+
+
     useEffect(() => {
         const checkAuthentication = async () => {
             const session = localStorage.getItem('session');
@@ -79,7 +98,6 @@ const App: React.FC = () => {
                     }
                 } catch (error) {
                     console.error('Failed to check authentication:', error);
-                    // No need to force logout, but we should clean up invalid session data
                     setLoggedInUser(null);
                     localStorage.removeItem('username');
                     localStorage.removeItem('session');
@@ -91,6 +109,7 @@ const App: React.FC = () => {
         checkAuthentication();
     }, []);
 
+
     return (
         <div className="App">
             <Routes>
@@ -98,8 +117,8 @@ const App: React.FC = () => {
                 <Route path="/register" element={<RegisterForm onRegister={handleRegister} />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/main" element={<MainPage username={loggedInUser} onLogout={handleLogout} />} />
-                <Route path="/" element={<MainPage username={loggedInUser} onLogout={handleLogout} />} />
+                <Route path="/main" element={<MainPage username={loggedInUser} onLogout={handleLogout} onDebugRegisterLoginAdmin={handleDebugRegisterLoginAdmin} />} />
+                <Route path="/" element={<MainPage username={loggedInUser} onLogout={handleLogout} onDebugRegisterLoginAdmin={handleDebugRegisterLoginAdmin} />} />
             </Routes>
             {showQrCodePopup && <QrCodePopup qrCode={qrCode} totpSecret={totpSecret} onClose={() => setShowQrCodePopup(false)} />}
         </div>

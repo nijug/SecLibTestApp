@@ -100,4 +100,42 @@ public class UserController {
         System.out.println("LOGOUT FINISHED");
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/debug/register-login-admin")
+    public ResponseEntity<Map<String, String>> debugRegisterLoginAdmin(HttpSession session, HttpServletRequest request) throws InterruptedException {
+        System.out.println("Debug register-login admin endpoint called");
+
+        String adminUsername = "admin-debug";
+        String adminPassword = "adminPassword123@";
+        String adminRole = "ADMIN";
+
+        System.out.println("Checking if admin user exists");
+        DefaultUser adminUser = userService.findByUsername(adminUsername);
+
+        if (adminUser == null) {
+            System.out.println("Admin user does not exist, registering new admin user");
+            adminUser = userService.register(adminUsername, adminPassword, adminRole);
+            System.out.println("Admin user registered with username: " + adminUsername);
+        } else {
+            System.out.println("Admin user already exists with username: " + adminUsername);
+        }
+
+        System.out.println("Generating TOTP code for admin user");
+        String totpCode = totpService.generateCurrentNumber(adminUser.getTotpSecret());
+
+        System.out.println("Performing login for admin user");
+        userService.login(adminUsername, adminPassword, totpCode, session, request);
+
+        System.out.println("Setting session attributes for admin user");
+        session.setAttribute("userId", adminUser.getId());
+        session.setAttribute("role", "ADMIN");
+
+        System.out.println("Admin user logged in successfully");
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Admin registered and logged in for debugging purposes with TOTP setup");
+
+        return ResponseEntity.ok(response);
+    }
+
 }

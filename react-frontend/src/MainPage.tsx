@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 interface MainPageProps {
     username: string | null;
     onLogout: () => void;
+    onDebugRegisterLoginAdmin?: () => void;
 }
 
 interface Post {
@@ -17,8 +18,9 @@ interface Post {
     content: string;
     author: string;
 }
-
-const MainPage: React.FC<MainPageProps> = ({ username, onLogout }) => {
+ /*todo: fix it that when being guest, you have buttons for post taht dont have author, but there shouldnt be post without author
+ so fix validation maybe probably wtf */
+const MainPage: React.FC<MainPageProps> = ({ username, onLogout, onDebugRegisterLoginAdmin }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [posts, setPosts] = useState<Post[]>([]);
     const [open, setOpen] = useState(false);
@@ -28,27 +30,34 @@ const MainPage: React.FC<MainPageProps> = ({ username, onLogout }) => {
     const navigate = useNavigate();
     const [openPostId, setOpenPostId] = useState<string | null>(null);
 
-    useEffect(() => {
-        const checkAuthentication = async () => {
-            const session = localStorage.getItem('session');
-            if (session) {
-                try {
-                    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${session}`;
-                    const response = await axiosInstance.get('/users/check-authentication');
-                    if (response.status === 200) {
-                        setIsAuthenticated(true);
-                    } else {
-                        throw new Error('Not authenticated');
+        useEffect(() => {
+            const checkAuthentication = async () => {
+                const session = localStorage.getItem('session');
+                if (session) {
+                    try {
+                        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${session}`;
+                        const response = await axiosInstance.get('/users/check-authentication');
+                        if (response.status === 200) {
+                            setIsAuthenticated(true);
+                            if (!username) {
+                                localStorage.setItem('username', response.data.username);
+                            }
+                        } else {
+                            throw new Error('Not authenticated');
+                        }
+                    } catch (error) {
+                        console.error('Failed to check authentication:', error);
+                        setIsAuthenticated(false);
+                        localStorage.removeItem('username');
                     }
-                } catch (error) {
-                    console.error('Failed to check authentication:', error);
+                } else {
                     setIsAuthenticated(false);
+                    localStorage.removeItem('username');
                 }
-            }
-        };
+            };
 
-        checkAuthentication();
-    }, []);
+            checkAuthentication();
+        }, []);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -109,6 +118,7 @@ const MainPage: React.FC<MainPageProps> = ({ username, onLogout }) => {
         setOpen(false);
     };
 
+
     return (
         <div className="mainPageWrapper">
             <nav className="navbar">
@@ -123,6 +133,7 @@ const MainPage: React.FC<MainPageProps> = ({ username, onLogout }) => {
                         <>
                             <Button className="loginButton" variant="contained" color="primary" onClick={() => navigate('/login')}>Login</Button>
                             <Button className="registerButton" variant="contained" color="secondary" onClick={() => navigate('/register')}>Register</Button>
+                            <Button className="debugLoginButton" variant="contained" color="default" onClick={onDebugRegisterLoginAdmin}>Debug</Button>
                         </>
                     )}
                 </div>
