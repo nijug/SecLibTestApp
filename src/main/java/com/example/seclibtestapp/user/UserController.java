@@ -1,6 +1,6 @@
 package com.example.seclibtestapp.user;
 
-import com.seclib.Totp.service.DefaultTotpService;
+import com.seclib.totp.DefaultTotpService;
 import com.seclib.user.model.DefaultUser;
 import com.seclib.user.service.DefaultUserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> register(@RequestBody UserDTO userDTO, HttpSession session)
+    public ResponseEntity<Map<String, String>> register(@RequestBody UserDTO userDTO)
             throws InterruptedException {
         System.out.println("user register: " + userDTO.username());
         System.out.println("password: " + userDTO.password());
@@ -51,15 +51,13 @@ public class UserController {
         System.out.println("user login: " + userDTO.username());
         System.out.println("password: " + userDTO.password());
         System.out.println("totp: " + userDTO.totp());
-        DefaultUser user = userService.login(userDTO.username(), userDTO.password(), userDTO.totp(), session, request);
-        session.setAttribute("userId", user.getId());
-        System.out.println("User id: " + session.getAttribute("userId"));
+        DefaultUser user = userService.login(userDTO.username(), userDTO.password(), userDTO.totp(), request);
         System.out.println("LOGIN FINISHED");
         return ResponseEntity.ok(user);
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@RequestBody UserDTO userDTO, HttpSession session)
+    public ResponseEntity<Void> forgotPassword(@RequestBody UserDTO userDTO)
             throws InterruptedException {
         String token = userService.forgotPassword(userDTO.username());
         String resetLink = "http://localhost:3000/reset-password?token=" + token;
@@ -70,7 +68,7 @@ public class UserController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<Void> resetPassword(@RequestBody PasswordResetDTO passwordResetDTO, HttpSession session)
+    public ResponseEntity<Void> resetPassword(@RequestBody PasswordResetDTO passwordResetDTO)
             throws IOException, InterruptedException {
         if (!passwordResetDTO.newPassword().equals(passwordResetDTO.confirmPassword())) {
             throw new IOException("Passwords do not match");
@@ -80,6 +78,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    /* todo: think about this method, probably should be part of lib */
     @GetMapping("/check-authentication")
     public ResponseEntity<Map<String, String>> checkAuthentication(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
@@ -95,14 +94,16 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpSession session) {
-        session.invalidate();
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        userService.logout(request);
         System.out.println("LOGOUT FINISHED");
         return ResponseEntity.ok().build();
     }
 
+    /*this is fine for debug i guess, delete latter */
+
     @PostMapping("/debug/register-login-admin")
-    public ResponseEntity<Map<String, String>> debugRegisterLoginAdmin(HttpSession session, HttpServletRequest request) throws InterruptedException {
+    public ResponseEntity<Map<String, String>> debugRegisterLoginAdmin(HttpServletRequest request) throws InterruptedException {
         System.out.println("Debug register-login admin endpoint called");
 
         String adminUsername = "admin-debug";
@@ -124,11 +125,9 @@ public class UserController {
         String totpCode = totpService.generateCurrentNumber(adminUser.getTotpSecret());
 
         System.out.println("Performing login for admin user");
-        userService.login(adminUsername, adminPassword, totpCode, session, request);
+        userService.login(adminUsername, adminPassword, totpCode, request);
 
         System.out.println("Setting session attributes for admin user");
-        session.setAttribute("userId", adminUser.getId());
-        session.setAttribute("role", "ADMIN");
 
         System.out.println("Admin user logged in successfully");
 
