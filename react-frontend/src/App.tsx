@@ -16,13 +16,15 @@ const App: React.FC = () => {
     const [showQrCodePopup, setShowQrCodePopup] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = async (username: string, password: string, totp: string) => {
+    const handleLogin = async (username: string, password: string, totpSecret: string) => {
         try {
-            const response = await axiosInstance.post('/users/login', { username, password, totp });
+            const response = await axiosInstance.post('/users/login', { username, password, totpSecret });
             if (response.status === 200) {
                 setLoggedInUser(username);
                 localStorage.setItem('username', username);
                 localStorage.setItem('session', response.data.session);
+                localStorage.setItem('csrfToken', response.data.csrfToken);
+
                 axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.session}`;
                 navigate('/main');
             } else {
@@ -72,6 +74,7 @@ const App: React.FC = () => {
                 const response = await axiosInstance.post('/users/debug/register-login-admin');
                 console.log(response.data.message);
                 localStorage.setItem('session', response.data.session);
+                localStorage.setItem('csrfToken', response.data.csrfToken);
                 axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.session}`;
                 setLoggedInUser('admin-debug');
                 navigate('/main');
@@ -81,8 +84,6 @@ const App: React.FC = () => {
                 alert('Failed to register-login admin. Please try again.');
             }
         };
-
-
 
     useEffect(() => {
         const checkAuthentication = async () => {
@@ -109,6 +110,15 @@ const App: React.FC = () => {
         checkAuthentication();
     }, []);
 
+    axiosInstance.interceptors.request.use((config) => {
+        const csrfToken = localStorage.getItem('csrfToken');
+        if (csrfToken && config.method && ['post', 'put', 'delete', 'patch'].includes(config.method.toLowerCase())) {
+        config.headers['X-CSRF-TOKEN'] = csrfToken;
+    }
+        return config;
+    }, (error) => {
+        return Promise.reject(error);
+    });
 
     return (
         <div className="App">
