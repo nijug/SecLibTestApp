@@ -26,10 +26,9 @@ public class PostService {
     public Post createPost(String title, String content, String author) {
         Post newPost = new Post();
         newPost.setTitle(textSanitizer.sanitize(title));
-        String sanitizedContent = textSanitizer.sanitize(content);
-        newPost.setContent(markdownService.renderToHtml(sanitizedContent));
-        System.out.println(markdownService.renderToHtml(sanitizedContent));
+        newPost.setContent(textSanitizer.sanitize(content));
         newPost.setAuthor(author);
+
         return postRepository.save(newPost);
     }
 
@@ -38,7 +37,9 @@ public class PostService {
     }
 
     public Optional<Post> getPostById(Long id) {
-        return postRepository.findById(id);
+        Optional<Post> dupa= postRepository.findById(id);
+        System.out.println(dupa.get().getContent());
+        return dupa;
     }
 
     public Post updatePost(Long id, String title, String content, String author) {
@@ -49,9 +50,7 @@ public class PostService {
             throw new IllegalArgumentException("User not authorized to update this post");
         }
         postToUpdate.setTitle(textSanitizer.sanitize(title));
-        String sanitizedContent = textSanitizer.sanitize(content);
-        postToUpdate.setContent(markdownService.renderToHtml(sanitizedContent));
-        System.out.println(markdownService.renderToHtml(sanitizedContent));
+        postToUpdate.setContent(textSanitizer.sanitize(content));
         return postRepository.save(postToUpdate);
     }
 

@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown';
 interface MainPageProps {
     username: string | null;
     onLogout: () => void;
+    isAuthenticated: boolean;
     onDebugRegisterLoginAdmin?: () => void;
 }
 
@@ -20,8 +21,8 @@ interface Post {
 }
  /*todo: fix it that when being guest, you have buttons for post taht dont have author, but there shouldnt be post without author
  so fix validation maybe probably wtf */
-const MainPage: React.FC<MainPageProps> = ({ username, onLogout, onDebugRegisterLoginAdmin }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+const MainPage: React.FC<MainPageProps> = ({ username, isAuthenticated, onLogout, onDebugRegisterLoginAdmin }) => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState('');
@@ -29,35 +30,6 @@ const MainPage: React.FC<MainPageProps> = ({ username, onLogout, onDebugRegister
     const [reloadPosts, setReloadPosts] = useState(false);
     const navigate = useNavigate();
     const [openPostId, setOpenPostId] = useState<string | null>(null);
-
-        useEffect(() => {
-            const checkAuthentication = async () => {
-                const session = localStorage.getItem('session');
-                if (session) {
-                    try {
-                        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${session}`;
-                        const response = await axiosInstance.get('/users/check-authentication');
-                        if (response.status === 200) {
-                            setIsAuthenticated(true);
-                            if (!username) {
-                                localStorage.setItem('username', response.data.username);
-                            }
-                        } else {
-                            throw new Error('Not authenticated');
-                        }
-                    } catch (error) {
-                        console.error('Failed to check authentication:', error);
-                        setIsAuthenticated(false);
-                        localStorage.removeItem('username');
-                    }
-                } else {
-                    setIsAuthenticated(false);
-                    localStorage.removeItem('username');
-                }
-            };
-
-            checkAuthentication();
-        }, []);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -140,21 +112,19 @@ const MainPage: React.FC<MainPageProps> = ({ username, onLogout, onDebugRegister
             </nav>
             <div className="mainPageContainer">
                 <div>
-                    {posts.map(post => (
-                        <div key={post.id} className="post">
-                            <p className="postAuthor">{post.author}</p>
-                            <h2 className="postTitle">{post.title}</h2>
-                             <div className="postContent"
-                             dangerouslySetInnerHTML={{ __html: post.content }}
-                             />
-                            {post.author === username && (
-                                <div className="postButtons">
-                                    <Button className="editButton" variant="outlined" color="primary" onClick={() => handleEditClick(post.id)}>Edit</Button>
-                                    <Button className="deleteButton" variant="outlined" color="secondary" onClick={() => handleDeletePost(post.id)}>Delete</Button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                   {posts.map(post => (
+                       <div key={post.id} className="post">
+                           <p className="postAuthor">{post.author}</p>
+                           <h2 className="postTitle">{post.title}</h2>
+                           <ReactMarkdown className="postContent">{post.content}</ReactMarkdown>
+                           {post.author === username && (
+                               <div className="postButtons">
+                                   <Button className="editButton" variant="outlined" color="primary" onClick={() => handleEditClick(post.id)}>Edit</Button>
+                                   <Button className="deleteButton" variant="outlined" color="secondary" onClick={() => handleDeletePost(post.id)}>Delete</Button>
+                               </div>
+                           )}
+                       </div>
+                   ))}
                 </div>
             </div>
             <Dialog open={open} onClose={handleClose}>
