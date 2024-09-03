@@ -31,13 +31,19 @@ const MainPage: React.FC<MainPageProps> = ({ username, isAuthenticated, onLogout
     const navigate = useNavigate();
     const [openPostId, setOpenPostId] = useState<string | null>(null);
 
+
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const response = await axiosInstance.get('/posts');
-                setPosts(response.data);
+                if (Array.isArray(response.data)) {
+                    setPosts(response.data);
+                } else {
+                    setPosts([]);
+                }
             } catch (error) {
                 console.error('Failed to fetch posts:', error);
+                setPosts([]);
             }
         };
 
