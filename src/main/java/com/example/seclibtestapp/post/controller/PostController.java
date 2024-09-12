@@ -2,6 +2,7 @@ package com.example.seclibtestapp.post.controller;
 
 import com.example.seclibtestapp.post.model.Post;
 import com.example.seclibtestapp.post.service.PostService;
+import com.seclib.config.csrf.CsrfBypass;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 import com.seclib.userRoles.permissions.RequiredPermissions;

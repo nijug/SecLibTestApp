@@ -14,13 +14,11 @@ public class PostService {
     private final PostRepository postRepository;
     private final DefaultRoleService roleService;
     private final TextSanitizer textSanitizer;
-    private final MarkdownService markdownService;
 
-    public PostService(PostRepository postRepository, DefaultRoleService roleService, TextSanitizer textSanitizer, MarkdownService markdownService) {
+    public PostService(PostRepository postRepository, DefaultRoleService roleService, TextSanitizer textSanitizer) {
         this.postRepository = postRepository;
         this.roleService = roleService;
         this.textSanitizer = textSanitizer;
-        this.markdownService = markdownService;
     }
 
     public Post createPost(String title, String content, String author) {

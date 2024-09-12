@@ -25,6 +25,7 @@ const App: React.FC = () => {
 
                 axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.session}`;
                 navigate('/main');
+                window.location.reload();
             } else {
                 throw new Error('Login failed');
             }
