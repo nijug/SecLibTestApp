@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.commonmark:commonmark:0.22.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'com.nimbusds:nimbus-jose-jwt:9.22' // Add this line
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.22'
 
 }
 

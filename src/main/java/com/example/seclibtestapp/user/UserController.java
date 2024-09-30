@@ -67,7 +67,7 @@ public class UserController {
     public ResponseEntity<Void> forgotPassword(@RequestBody DefaultUserDTO userDTO)
             throws InterruptedException {
         String token = userService.forgotPassword(userDTO.getUsername());
-        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        String resetLink = "https://localhost:3000/reset-password?token=" + token;
         /*mailService.sendEmail(userDTO.username(), "Password Reset", "Click the following link to reset your password: " + resetLink); */
         System.out.println("Reset link: " + resetLink);
         System.out.println("FORGOT PASSWORD FINISHED");
