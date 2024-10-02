@@ -1,11 +1,12 @@
 package com.example.seclibtestapp;
 
+import com.seclib.SecLibConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.example.seclibtestapp", "com.seclib"})
+@Import(SecLibConfiguration.class)
 public class SecLibTestAppApplication {
 
     public static void main(String[] args) {
