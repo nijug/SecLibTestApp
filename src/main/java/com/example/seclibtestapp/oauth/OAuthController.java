@@ -30,6 +30,7 @@ public class OAuthController {
     private final GitHubOAuthClient gitHubOAuthClient;
     private final DefaultSocialLoginService socialLoginService;
     private String frontendRedirectUri;
+    private SocialLoginUserDTO user;
 
 
     public OAuthController(GoogleOAuthClient googleOAuthClient, GitHubOAuthClient gitHubOAuthClient, DefaultSocialLoginService socialLoginService) {
@@ -57,7 +58,8 @@ public class OAuthController {
             log.info(userProfile.getName());
             log.info(userProfile.getEmail());
 
-            SocialLoginUserDTO user = socialLoginService.loginViaSocial(userProfile,request);
+            SocialLoginUserDTO user = socialLoginService.loginViaSocial(userProfile, Optional.of("USER"),request);
+            this.user = user;
             String redirectUri = frontendRedirectUri + "?username=" + user.getUsername();
             System.out.println("REDIRECT URI: " + redirectUri);
 
@@ -70,10 +72,9 @@ public class OAuthController {
 
     @CsrfBypass
     @GetMapping("/oauth-callback")
-    public ResponseEntity<SocialLoginUser> getUserInfo(@RequestParam("username") String username) {
-        SocialLoginUser user = socialLoginService.findByUsername(username);
-        System.out.println("USER INFO: " + user);
-        return Optional.ofNullable(user)
+    public ResponseEntity<SocialLoginUserDTO> getUserInfo(@RequestParam("username") String username) {
+        System.out.println("USER INFO: " + this.user);
+        return Optional.ofNullable(this.user)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(404).build());
     }
