@@ -28,8 +28,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'com.nimbusds:nimbus-jose-jwt:9.22'
-
-
 }
 
 tasks.named('test') {

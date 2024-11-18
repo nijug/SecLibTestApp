@@ -1,10 +1,12 @@
 package com.example.seclibtestapp.user;
 
 import com.seclib.config.csrf.CsrfBypass;
+import com.seclib.socialLogin.DefaultSocialLoginService;
 import com.seclib.totp.DefaultTotpService;
 import com.seclib.user.dto.DefaultUserDTO;
 import com.seclib.user.mapper.DefaultUserMapper;
 import com.seclib.user.model.DefaultUser;
+import com.seclib.user.model.SocialLoginUser;
 import com.seclib.user.service.DefaultUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -18,17 +20,19 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
 
     private final DefaultUserService userService;
     private final DefaultTotpService totpService;
     private final DefaultUserMapper mapper;
+    private final DefaultSocialLoginService socialLoginUserService;
 
-    public UserController(DefaultUserService userService, DefaultTotpService totpService, DefaultUserMapper mapper) {
+    public UserController(DefaultUserService userService, DefaultTotpService totpService, DefaultUserMapper mapper, DefaultSocialLoginService socialLoginUserService) {
         this.userService = userService;
         this.totpService = totpService;
         this.mapper = mapper;
+        this.socialLoginUserService = socialLoginUserService;
     }
 
     @PostMapping("/register")
@@ -58,6 +62,7 @@ public class UserController {
         System.out.println("password: " + userDTO.getPassword());
         System.out.println("totp: " + userDTO.getTotpSecret());
         DefaultUserDTO loggedUser = userService.login(userDTO, request);
+        System.out.println("Session id: " + loggedUser.getSessionId());
         System.out.println("LOGIN FINISHED");
         return ResponseEntity.ok(loggedUser);
     }
@@ -86,16 +91,25 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    /* todo: think about this method, probably should be part of lib */
     @GetMapping("/check-authentication")
     public ResponseEntity<Map<String, String>> checkAuthentication(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId != null) {
-            Optional<DefaultUser> user = userService.findById(userId);
-            Map<String, String> response = new HashMap<>();
-            response.put("username", user.get().getUsername());
-            System.out.println("CHECK AUTHENTICATION FINISHED");
-            return ResponseEntity.ok(response);
+            Optional<DefaultUser> defaultUser = userService.findById(userId);
+            Optional<SocialLoginUser> socialLoginUser = Optional.ofNullable(socialLoginUserService.findById(userId));
+
+            if (defaultUser.isPresent() || socialLoginUser.isPresent()) {
+                Map<String, String> response = new HashMap<>();
+                if (defaultUser.isPresent()) {
+                    response.put("username", defaultUser.get().getUsername());
+                } else {
+                    response.put("username", socialLoginUser.get().getUsername());
+                }
+                System.out.println("CHECK AUTHENTICATION FINISHED");
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(404).body(Map.of("message", "User not found"));
+            }
         } else {
             return ResponseEntity.status(401).body(Map.of("message", "Not authenticated"));
         }

@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography } from '@material-ui/core';
-import { useNavigate } from 'react-router-dom';
 import './LoginForm.css';
 
 interface LoginFormProps {
     onLogin: (username: string, password: string, totp: string) => void;
     onForgotPassword: () => void;
+    onSocialLogin: (provider: string) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword, onSocialLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [totp, setTotp] = useState('');
 
-    const navigate = useNavigate();
-
     const login = () => {
         onLogin(username, password, totp);
     };
+
 
     return (
         <Container className="loginFormContainer" maxWidth="xs">
@@ -27,6 +26,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onForgotPassword }) => {
             <TextField fullWidth margin="normal" value={totp} onChange={e => setTotp(e.target.value)} label="TOTP Token" />
             <Button fullWidth variant="contained" color="primary" onClick={login}>Login</Button>
             <Button fullWidth variant="contained" color="secondary" onClick={onForgotPassword}>Forgot Password?</Button>
+            <Button fullWidth variant="contained" color="default" onClick={() => onSocialLogin('google')}>Login with Google</Button>
+            <Button fullWidth variant="contained" color="default" onClick={() => onSocialLogin('github')}>Login with GitHub</Button>
         </Container>
     );
 };

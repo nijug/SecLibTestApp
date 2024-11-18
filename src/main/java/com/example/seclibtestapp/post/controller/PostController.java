@@ -10,7 +10,7 @@ import com.seclib.userRoles.permissions.RequiredPermissions;
 
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")
 public class PostController {
     private final PostService postService;
 
